@@ -1,0 +1,47 @@
+services:
+  postgres:
+    container_name: postgresDB
+    image: postgres:${VERSAO_TAG_DB}
+    ports:
+      - 5432:5432
+#    profiles:
+#      - dev 
+#      - homolog
+    environment:
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_DB: ${DATABASE}
+    volumes:
+      - kube_news_vol:/var/lib/postgresql/data
+    networks:
+      - kube_news_net
+
+  kube_news_web:
+    container_name: kube_news_app
+    image: oagara/kube-news:${VERSAO_TAG_APP:-latest}
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      DB_PASSWORD: ${DBPASSWORD}
+      DB_USERNAME: ${DBUSER}
+      DB_DATABASE: ${DATABASE}
+      DB_HOST: postgresDB
+    networks:
+      - kube_news_net
+    depends_on:
+      - postgres
+
+volumes:
+  kube_news_vol:
+    name: kube_news_vol
+#    external: true (Caso queira usar um volume externo que não foi criado aqui.)
+
+networks:
+  kube_news_net:
+    name: kube_news_net
+    driver: bridge
+#    external: true (Caso queira usar uma rede externa que não foi criado aqui.)
+      

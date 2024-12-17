@@ -1,0 +1,9 @@
+services:
+  nginx:
+    image: nginx
+    network_mode: "host"
+
+  curl:
+    image: nginx
+    extra_hosts:
+      kube_news.paragao.com: "192.168.1.201"
